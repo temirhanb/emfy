@@ -1,4 +1,4 @@
-import {leadsApi} from "../../api";
+import {allLeadsApi, leadsApi} from "../../api";
 
 export const leadsPage = async (token: string) => {
   let page: number = 1;
@@ -19,23 +19,25 @@ export const leadsPage = async (token: string) => {
     </thead>
     <tbody id="table__body">
     </tbody>
-   
   </table> 
-   <div>
-        <button id="button__next">Next</button>
-        <button id="button__prev">Prev</button>
-    </div>
 `;
   const tableLeads = document.querySelector<HTMLTableElement>("#table__body");
 
-  const data = [];
+  const data:Array<any> = [];
+  const allLeads = await allLeadsApi(token);
+  const allLeadsLength = allLeads.leads.length;
 
-  const {leads} = await leadsApi(token, page);
+  const intervalConnectLeads = setInterval(async ()=>{
 
-  data.push(...leads);
+    if(Math.ceil(allLeadsLength/2)===page) {
+      clearInterval(intervalConnectLeads)
+    }
 
-  tableLeads!.innerHTML = data.map(item => {
-    return (`
+    const {leads} = await leadsApi(token, page);
+
+    data.push(...leads);
+    tableLeads!.innerHTML = data.map(item => {
+      return (`
            <tr>
                <th>
                    ${item.id}
@@ -48,11 +50,8 @@ export const leadsPage = async (token: string) => {
                </th>
            </tr>
          `);
-  }).join("");
-  document.querySelector<HTMLButtonElement>("#button__next")!.addEventListener("click", async () => {
-    page++;
-    const {leads} = await leadsApi(token, page);
-    return data.push(...leads.leads);
-  });
-  console.log(data, "data next");
+    }).join("");
+
+    page++
+  },1000)
 };
