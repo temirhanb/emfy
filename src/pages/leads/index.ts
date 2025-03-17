@@ -1,7 +1,6 @@
-import {allLeadsApi, leadsApi} from "../../api";
+import {contactsApi, leadsApi} from "../../api";
 
-export const leadsPage = async (token: string) => {
-  let page: number = 1;
+export const leadsPage = (token: string) => {
 
   document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <table style="display: flex;justify-content: center;align-items: center;flex-direction: column">  
@@ -21,22 +20,57 @@ export const leadsPage = async (token: string) => {
     </tbody>
   </table> 
 `;
+
   const tableLeads = document.querySelector<HTMLTableElement>("#table__body");
 
-  const data:Array<any> = [];
-  const allLeads = await allLeadsApi(token);
-  const allLeadsLength = allLeads.leads.length;
+  const data: Array<any> = [];
 
-  const intervalConnectLeads = setInterval(async ()=>{
+  const contacts: Array<any> = [];
 
-    if(Math.ceil(allLeadsLength/2)===page) {
-      clearInterval(intervalConnectLeads)
-    }
+  let pageLeads = 1;
 
-    const {leads} = await leadsApi(token, page);
+  let pageContacts = 1;
 
-    data.push(...leads);
+  const intervalConnectContacts = setInterval(() => {
+
+    contactsApi(token, pageContacts).then((res) => {
+
+      if (!res.next) return clearInterval(intervalConnectContacts);
+
+      const contactsRes = res.contacts.contacts;
+
+      contacts.push(...contactsRes.map((item) => ({id:item.id,name: item.name, contact: item.custom_fields_values})));
+
+      console.log(contacts);
+    }).catch(e => {
+
+      console.dir(e);
+
+      clearInterval(intervalConnectContacts);
+    });
+
+    pageContacts++;
+  }, 1000);
+
+  const intervalConnectLeads = setInterval(() => {
+
+    leadsApi(token, pageLeads).then((res) => {
+
+      if (!res.next || !res) return clearInterval(intervalConnectLeads);
+
+      data.push(...res.leads);
+
+    }).catch(e => {
+
+      console.dir(e);
+
+      clearInterval(intervalConnectLeads);
+    });
+
+    pageLeads++;
+
     tableLeads!.innerHTML = data.map(item => {
+
       return (`
            <tr>
                <th>
@@ -51,7 +85,6 @@ export const leadsPage = async (token: string) => {
            </tr>
          `);
     }).join("");
-
-    page++
-  },1000)
+  }, 1000);
+  console.log(contacts, data);
 };
