@@ -9,5 +9,6 @@ export const leadsApi = async (token: string, page: number = 1) => {
       Authorization: token
     }
   });
+
   return {leads: _embedded.leads, next: _links.next};
 };

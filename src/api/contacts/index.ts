@@ -11,5 +11,5 @@ export const contactsApi = async (token: string, page: number) => {
     }
   });
 
-  return {contacts,next:_links};
+  return {contacts,next:_links.next};
 };
