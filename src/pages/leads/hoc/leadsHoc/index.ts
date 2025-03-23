@@ -1,39 +1,36 @@
-import {leadsApi} from "../../../../api";
+import {contactsApi, leadsApi} from "../../../../api";
+import {tableHoc} from "../tableHoc";
 
-export const leadsHoc = async (token: string, tableLeads: HTMLTableElement | null) => {
+
+export const leadsHoc = (token: string, tableLeads: HTMLTableElement | null) => {
+
   let pageLeads = 1;
   let leadsData: Array<any> = [];
+  let contactsData: Array<any> = [];
 
-  const intervalConnectLeads = setInterval(() => {
+  const intervalFetchingData = setInterval(() => {
 
     leadsApi(token, pageLeads).then((res) => {
-
       const leads = res.leads;
-
       leadsData.push(...leads);
-      tableLeads!.innerHTML = leadsData.map(item => {
+    }).catch(e => console.dir(e));
 
-        return (`
-           <tr>
-               <th>
-                   ${item.id}
-               </th>
-               <th>
-                   ${item.name}
-               </th>
-               <th>
-                   ${item.price}
-               </th>
-           </tr>
-         `);
-      }).join("");
-      pageLeads++;
-
-    }).catch(e => {
-      console.dir(e);
-      clearInterval(intervalConnectLeads);
+    contactsApi(token, pageLeads).then(res => {
+      contactsData.push(...res.contacts);
+      if(!res.next) clearInterval(intervalFetchingData)
     });
+
+    tableHoc(contactsData, leadsData,tableLeads).then(res=>{
+      let clickToInfo = document.getElementById('table__body_column');
+      let click = document.getElementById('table__body_info');
+
+      clickToInfo?.addEventListener("click", () => {
+        console.log("click clack");
+        // click.style.display = 'node'
+      });
+
+    });
+
+    ++pageLeads;
   }, 1000);
-  console.log(leadsData);
-  return leadsData;
 };

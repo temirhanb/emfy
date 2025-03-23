@@ -1,5 +1,4 @@
 import {leadsHoc} from "./hoc/leadsHoc";
-import {contactsHoc} from "./hoc/contactsHoc";
 
 export const leadsPage = (token: string) => {
 
@@ -8,13 +7,33 @@ export const leadsPage = (token: string) => {
     <caption style="font-size: 25px;font-weight: 700">
         Leads list
     </caption>
-    <thead>
-      <tr style="display: flex;justify-content: center;align-items: center;">
-        <th>Id</th>
-        <th>Name</th>
-        <th>Budget</th>
-        <th>Name contacts</th>
-        <th>Phone</th>
+    <thead id="table__header">
+      <tr id="table__header_row">
+        <th class="table__header_th">
+            <p class="table__header_p">
+                ID
+            </p>
+        </th>
+        <th class="table__header_th">
+            <p class="table__header_p">
+                Name lead
+            </p>
+        </th>
+        <th class="table__header_th">
+            <p class="table__header_p">
+                Budget
+            </p>
+        </th>
+        <th class="table__header_th">
+            <p class="table__header_p">
+                Name contacts
+            </p>
+        </th>
+        <th class="table__header_th">
+            <p class="table__header_p">
+                Phone
+            </p>
+        </th>
       </tr>
     </thead>
     <tbody id="table__body">
@@ -24,6 +43,5 @@ export const leadsPage = (token: string) => {
 
   const tableLeads = document.querySelector<HTMLTableElement>("#table__body");
 
-  contactsHoc(token);
   leadsHoc(token, tableLeads);
 };
